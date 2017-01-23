@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Da Blog</title>
-    <link>http://localhost:1313/</link>
+    <link>http://blog.rob-mason.me/</link>
     <description>Recent content on Da Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
     <copyright>Code released under the Apache 2.0 license.</copyright>
     <lastBuildDate>Fri, 09 Sep 2016 17:35:31 +0100</lastBuildDate>
-    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://blog.rob-mason.me/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>about</title>
-      <link>http://localhost:1313/about/</link>
+      <link>http://blog.rob-mason.me/about/</link>
       <pubDate>Fri, 09 Sep 2016 17:35:31 +0100</pubDate>
       
-      <guid>http://localhost:1313/about/</guid>
+      <guid>http://blog.rob-mason.me/about/</guid>
       <description>&lt;p&gt;The term &lt;a href=&#34;https://www.wired.com/2007/12/blog-advice/&#34;&gt;&amp;ldquo;weblog&amp;rdquo; was coined in 1997&lt;/a&gt;, so with just under 20 years of proving I am deeming it safe to dip my toe in the water.&lt;/p&gt;
 
 &lt;p&gt;At this rate expect me to have a Facebook page sometime around &lt;a href=&#34;http://www.theregister.co.uk/2007/10/01/facebook_domain_dispute/&#34;&gt;2024&lt;/a&gt;.&lt;/p&gt;
@@ -27,10 +27,10 @@ Pull up a chair while I ramble on about Linux, cloud, containers, rawk &amp;lsqu
     
     <item>
       <title>&#39;Kubernetes The Hard Way&#39; - Local with Libvirt</title>
-      <link>http://localhost:1313/post/kubernetes-from-the-hard-to-the-easy-way/</link>
+      <link>http://blog.rob-mason.me/post/kubernetes-from-the-hard-to-the-easy-way/</link>
       <pubDate>Thu, 08 Dec 2016 21:54:36 +0000</pubDate>
       
-      <guid>http://localhost:1313/post/kubernetes-from-the-hard-to-the-easy-way/</guid>
+      <guid>http://blog.rob-mason.me/post/kubernetes-from-the-hard-to-the-easy-way/</guid>
       <description>
 
 &lt;p&gt;Many of the introductory articles on-line for Kubernetes focus on
@@ -121,7 +121,7 @@ the user data and create the virtual machines based on a libvirt XML
 template. This is a bit of a &amp;lsquo;chicken and egg&amp;rsquo; situation - &lt;a href=&#34;https://docs.saltstack.com/en/latest/topics/virt/index.html&#34;&gt;Salt Virt&lt;/a&gt; would be
 a better solution but I am not there yet!&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/img/k8sflat.svg&#34; alt=&#34;infrastructure&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://blog.rob-mason.me/img/k8sflat.svg&#34; alt=&#34;infrastructure&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;So now that infrastructure is set up the next five stages of the
 tutorial continue as is. The next part where there is a change is in
@@ -159,7 +159,7 @@ ip route add &amp;lt;cidr of node3&amp;gt; via &amp;lt;ip addr of node 3&amp;gt;
 
 &lt;p&gt;and so on for each of the other nodes.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/img/k8sflat_routes.svg&#34; alt=&#34;routes&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://blog.rob-mason.me/img/k8sflat_routes.svg&#34; alt=&#34;routes&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Now you are good to go and play with your cluster.&lt;/p&gt;
 
