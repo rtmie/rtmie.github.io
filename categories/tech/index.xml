@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tech on Da Blog</title>
+    <link>http://localhost:1313/categories/tech/</link>
+    <description>Recent content in Tech on Da Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-gb</language>
+    <copyright>Code released under the Apache 2.0 license.</copyright>
+    <lastBuildDate>Thu, 08 Dec 2016 21:54:36 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/categories/tech/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>&#39;Kubernetes The Hard Way&#39; - Local with Libvirt</title>
+      <link>http://localhost:1313/post/kubernetes-from-the-hard-to-the-easy-way/</link>
+      <pubDate>Thu, 08 Dec 2016 21:54:36 +0000</pubDate>
+      
+      <guid>http://localhost:1313/post/kubernetes-from-the-hard-to-the-easy-way/</guid>
+      <description>
+
+&lt;p&gt;Many of the introductory articles on-line for Kubernetes focus on
+getting the simplest environment possible up and running, with a view
+to getting the user quickly on to the topic of how to use Kubernetes
+to run their software. This is ideal for people wanting to evaluate
+Kubernetes features or validate their application for a
+container environment.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s like there is an inherent assumption that when it comes to that
+time down the line when you are going to use it in anger, someone else
+in your organisation will have delivered that environment for you to
+run your application on.&lt;/p&gt;
+
+&lt;p&gt;Now that approach doesn&amp;rsquo;t work for me for a couple of reasons. If my
+team is responsible for the design of the system delivery then there
+is a reasonable chance we will also be involved in the deployment
+design as well. Devops doesn&amp;rsquo;t work if the ops/environments
+responsibility is siloed into one person in the team. Secondly if my
+goal is to understand cost and benefit of a technology then I need to
+understand the cost/complexity of delivering the environment in the
+way it will ultimately be required in production. That at least
+involves understanding how HA and security will work as well as some
+exploration of how the platform will interact with the infrastructure
+environment  e.g. networking and storage. A little extra time up
+front grappling with these &amp;ldquo;harder&amp;rdquo; things will pay off in the long
+run.&lt;/p&gt;
+
+&lt;h3 id=&#34;enter-kubernetes-the-hard-way&#34;&gt;Enter &amp;ldquo;Kubernetes - The Hard Way&amp;rdquo;&lt;/h3&gt;
+
+&lt;p&gt;For this reason I was looking for a way of learning about Kubernetes
+that took a more detailed step by step approach to delivering the
+environment. Enter &amp;ldquo;The Hard Way&amp;rdquo;.
+&lt;a href=&#34;https://github.com/kelseyhightower/kubernetes-the-hard-way&#34;&gt;Kubernetes The Hard Way&lt;/a&gt;
+is a tutorial by &lt;a href=&#34;https://twitter.com/kelseyhightower&#34;&gt;Kelsey Hightower&lt;/a&gt;
+which is :&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&amp;ldquo;optimized for learning, which means taking the long route to help
+people understand each task required to bootstrap a Kubernetes
+cluster.&amp;rdquo;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This is exactly what I was looking for so I dived in. However I did
+have some idiosyncrasies in how I worked it.
+Kelsey&amp;rsquo;s tutorial is based on infrastructure provisioned in either AWS
+or GCE, and he provides instructions for both. In my case I wanted to
+use libvirt on an old server I had lying around because I wanted to
+understand what would be involved in on-premises Kubernetes
+deployments. I also had a secondary goal of learning how to use
+&lt;a href=&#34;https://github.com/saltstack/salt&#34;&gt;SaltStack&lt;/a&gt; and wanted to have a
+real world use case for my first Salt automation (but more of that in
+another post!).&lt;/p&gt;
+
+&lt;h3 id=&#34;the-infrastructure&#34;&gt;The Infrastructure&lt;/h3&gt;
+
+&lt;p&gt;The tutorial delivers a HA Kubernetes Cluster. Kubernetes delivers HA
+by storing all state and data in a separate store, etcd. There are a
+set of mater processes which run on Kubernetes master nodes and a set
+of worker processes that run on Kubernetes worker nodes.&lt;/p&gt;
+
+&lt;p&gt;In a HA configuration there are three master nodes. In order to save
+on hardware, (my server is 2 x quad core w 32GB RAM),  the etcd cluster
+runs on the same nodes as the master processes. For a production
+deployment it is recommended to run the etcd cluster on separate nodes.
+The tutorial also proposes three worker nodes which which will allow
+for applications to be deployed in a HA fashion on top of Kubernetes.&lt;/p&gt;
+
+&lt;p&gt;Kubernetes requires that all pods deployed in a cluster can see each
+other without the use of NAT. This requires some means of presenting a
+flat network for the cluster. This is often done using container
+networking fabrics such as &lt;a href=&#34;https://github.com/coreos/flannel&#34;&gt;Flannel&lt;/a&gt;.
+However where infrastructure is provided by an IAAS cloud then there
+may already be a flat network in place at the IAAS tier, this is the
+case for GCE and AWS in the tutorial, so the container network fabric
+is not required.&lt;/p&gt;
+
+&lt;p&gt;In my libvirt case I created a separate libvirt network for my
+Kubernetes hosts so they were all sharing the same flat segment at the
+infrastructure layer.&lt;/p&gt;
+
+&lt;p&gt;Virtual machines are created based on the &lt;a href=&#34;http://cloud.centos.org/centos/7/images/&#34;&gt;Centos 7 cloud image&lt;/a&gt;.
+and have a fixed IP address on the flat network, injected by copying
+an ifcfg file via cloud-init user data. I also added the SaltStack
+repo and salt-minion rpm install via the user data (but this is for
+future Salt learning). I hacked together a python script to generate
+the user data and create the virtual machines based on a libvirt XML
+template. This is a bit of a &amp;lsquo;chicken and egg&amp;rsquo; situation - &lt;a href=&#34;https://docs.saltstack.com/en/latest/topics/virt/index.html&#34;&gt;Salt Virt&lt;/a&gt; would be
+a better solution but I am not there yet!&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/img/k8sflat.svg&#34; alt=&#34;infrastructure&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So now that infrastructure is set up the next five stages of the
+tutorial continue as is. The next part where there is a change is in
+&amp;lsquo;Managing the Container Network Routes&amp;rsquo;.&lt;/p&gt;
+
+&lt;h3 id=&#34;what-s-different-in-the-container-network-routes&#34;&gt;What&amp;rsquo;s different in the Container Network Routes&lt;/h3&gt;
+
+&lt;p&gt;As the tutorial uses the &lt;a href=&#34;http://kubernetes.io/docs/admin/network-plugins/#kubenet&#34;&gt;kubenet&lt;/a&gt;
+plug-in for pod networking we do need to take care of routing between
+pods on the worker nodes. In the configuration of the control plane
+in the tutorial, the &lt;em&gt;kube-controller-manager&lt;/em&gt; is configured to allocate
+CIDRs from within the cluster CIDR to each node. The &lt;em&gt;kubelet&lt;/em&gt; on each
+node will allocate addresses to each pod it creates from within the
+nodes CIDR.
+Now the kubenet plug-in is a rudimentary network plug-in and does not
+provide any advanced features related to inter-node routing or
+network policy. It relies on routing configuration on the nodes to
+deliver traffic between nodes.
+So as explained in the tutorial you will need to find the CIDR that
+the &lt;em&gt;kube-controller-manager&lt;/em&gt; automatically assigned to each node
+and configure routing via the host IP address of that node.
+The tutorial provides a kubectl query that will give you that mapping:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;kubectl get nodes \
+--output=jsonpath=&#39;{range .items[*]}{.status.addresses[?(@.type==&amp;quot;InternalIP&amp;quot;)].address} {.spec.podCIDR} {&amp;quot;\n&amp;quot;}{end}&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once you have this you can issue appropriate &lt;em&gt;ip route&lt;/em&gt; commands on
+each node to route to the CIDRs on the other nodes.
+e.g. on node-1&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;ip route add &amp;lt;cidr of node2&amp;gt; via &amp;lt;ip addr of node 2&amp;gt;
+ip route add &amp;lt;cidr of node3&amp;gt; via &amp;lt;ip addr of node 3&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and so on for each of the other nodes.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/img/k8sflat_routes.svg&#34; alt=&#34;routes&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now you are good to go and play with your cluster.&lt;/p&gt;
+
+&lt;p&gt;However if you will run into a problem with this approach if you want
+to move to an automated solution - (did I mention I will be doing this
+with SaltStack in a future post :-) ).
+Each time you add a node it will automatically be allocated a CIDR and
+you will not know the routing required until you query the assigned
+CIDR as above.&lt;/p&gt;
+
+&lt;h3 id=&#34;enabling-manual-predictable-assignment-of-node-cidr&#34;&gt;Enabling Manual (Predictable) Assignment of Node CIDR&lt;/h3&gt;
+
+&lt;p&gt;A little bit of reading and research shows that there is an
+alternative means of assigning pod CIDR to nodes. Automatic allocation
+is enabled/disabled via a command line argument to
+&lt;em&gt;kube-controller-manager&lt;/em&gt; and as such can be set in the systemd unit
+file. You can then assign a specific CIDR to each node via a command
+line argument for &lt;em&gt;kubelet&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;First of all modify the &lt;em&gt;kube-controller-manager&lt;/em&gt; systemd unit file in
+the &amp;lsquo;Bootstrapping an H/A Kubernetes Control Plane&amp;rsquo; section to change
+&lt;em&gt;&amp;ndash;allocate-node-cidrs&lt;/em&gt; to false.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+ExecStart=/opt/kubernetes/bin/kube-controller-manager \
+  --cluster-cidr=10.200.0.0/16 \
+  --cluster-name=kubernetes \
+  --leader-elect=true \
+  --master=http://HOST_INTERNAL_IP:8080 \
+  --root-ca-file=/var/lib/kubernetes/ca.pem \
+  --service-account-private-key-file=/var/lib/kubernetes/kubernetes-key.pem \
+  --allocate-node-cidrs=false \
+  --service-cluster-ip-range=10.32.0.0/24 \
+  --v=2
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we need to assign the CIDR for each node manually, and obviously
+avoid clashes. We then configure this value by adding a pod-cidr
+argument in the &lt;em&gt;kubelet&lt;/em&gt; systemd unit.
+This is straightforward when it is being driven by an automation tool.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[Unit]
+Description=Kubernetes Kubelet
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=docker.service
+Requires=docker.service
+
+[Service]
+ExecStart=/opt/kubernetes/bin/kubelet \
+  --allow-privileged=true \
+  --api-servers=https://192.168.170.10:6443,https://192.168.170.11:6443,https://192.168.170.12:6443 \
+  --cluster-dns=10.32.0.10 \
+  --cluster-domain=cluster.local \
+  --network-plugin=kubenet \
+  --container-runtime=docker \
+  --docker=unix:///var/run/docker.sock \
+  --kubeconfig=/var/lib/kubelet/kubeconfig \
+  --pod-cidr=10.200.0.0/24 \
+  --reconcile-cidr \
+  --serialize-image-pulls=false \
+  --tls-cert-file=/var/lib/kubernetes/kubernetes.pem \
+  --tls-private-key-file=/var/lib/kubernetes/kubernetes-key.pem \
+  --v=2
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now your automation tool can co-ordinate assignments in kubelet and
+routing on each node.&lt;/p&gt;
+
+&lt;h3 id=&#34;so-what-have-i-learned&#34;&gt;So What Have I learned?&lt;/h3&gt;
+
+&lt;p&gt;The goal of &lt;a href=&#34;https://github.com/kelseyhightower/kubernetes-the-hard-way&#34;&gt;Kubernetes The Hard Way&lt;/a&gt;
+is to learn rather than to generate a production ready deployment.&lt;/p&gt;
+
+&lt;p&gt;The situation described here will not arise when CNI plug-in is being
+used as the CNI plug-in will allow Kubernetes to provide an update to
+the networking fabric as node CIDRs are assigned.&lt;/p&gt;
+
+&lt;p&gt;Making it a bit harder still  with a different infrastructure
+environment than specified in the tutorial meant getting a good
+understanding of pod networking. Progressing to an automation of the
+deployment exposed different options for node CIDR assignment.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;d recommend familiarising yourself with &lt;a href=&#34;http://kubernetes.io/docs/admin/network-plugins/&#34;&gt;Kubernetes network plug-ins&lt;/a&gt;
+and the different options they provide. I&amp;rsquo;d also recommend looking
+into the &lt;a href=&#34;https://github.com/containernetworking/cni&#34;&gt;CNI specification&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Oh, and do follow Kelsey Hightower on Twitter and Github - he&amp;rsquo;s a mine
+of information and innovation!&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
